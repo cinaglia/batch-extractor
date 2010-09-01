@@ -29,14 +29,25 @@ def decompress_and_delete(directory, file_name, indentation):
         
         # Decompressing the part**.rar or .r00 files
         print ('\t' * indentation) + "Decompressing file: " + file_name
+        
+        if directory == '':
+          directory = '.'
+          
+        # Finding out which files are to be extracted
+        files = os.popen('unrar l %s | cut -d " " -f 2' % file_name).readlines()
+        files = [x.replace('\n', '') for x in files[7:-3]] # Da linha 7 até a ante penultima
+        
         proc = subprocess.Popen(["unrar", "x", directory + '/' + file_name, directory], stdout=file(os.devnull, "w"))
         retcode = proc.wait()
         print ('\t' * indentation) + "Finished decompressing file: " + file_name
         
         # Deleting the files
-        for entry in os.listdir(directory):
-          if '.avi' not in entry and '.mkv' not in entry and entry <> 'Subs':
-            os.system('rm ' + (directory + '/' + entry))
+        answer = raw_input("Delete all other files? [Y]es / [N]o: ")
+        if answer.upper() == 'Y':
+          for entry in os.listdir(directory):
+            if (entry not in files):
+                print "Deleting: %s" % entry
+                os.system('rm ' + (directory + '/' + entry))
         
 
 def main():
